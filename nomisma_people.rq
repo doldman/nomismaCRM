@@ -1,0 +1,80 @@
+PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX bio:	<http://purl.org/vocab/bio/0.1/>
+PREFIX crm:	<http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX dcmitype:	<http://purl.org/dc/dcmitype/>
+PREFIX dcterms:	<http://purl.org/dc/terms/>
+PREFIX foaf:	<http://xmlns.com/foaf/0.1/>
+PREFIX geo:	<http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX nm:	<http://nomisma.org/id/>
+PREFIX nmo:	<http://nomisma.org/ontology#>
+PREFIX org:	<http://www.w3.org/ns/org#>
+PREFIX osgeo:	<http://data.ordnancesurvey.co.uk/ontology/geometry/>
+PREFIX rdac:	<http://www.rdaregistry.info/Elements/c/>
+PREFIX skos:	<http://www.w3.org/2004/02/skos/core#>
+PREFIX spatial: <http://jena.apache.org/spatial#>
+PREFIX un:	<http://www.owl-ontologies.com/Ontology1181490123.owl#>
+PREFIX xsd:	<http://www.w3.org/2001/XMLSchema#>
+PREFIX rso:	<http://www.researchspace.org/ontology/>
+PREFIX rdfs:	<http://www.w3.org/2000/01/rdf-schema#>
+
+
+
+
+CONSTRUCT {
+
+?time a crm:E52_Time-Span .
+?time1 a crm:E52_Time-Span .
+?role a crm:E74_Group .
+?place a crm:E53_Place .
+?join a crm:E85_Joining .
+?leaving a crm:E86_Leaving .
+?appellation a crm:E41_Appellation .
+?s rdfs:label ?p  . 
+?s skos:exactMatch ?o .
+?s crm:P3_has_note ?d .
+?s a crm:E21_Person .
+        
+?s rso:PX_profession ?role . 
+?role skos:prefLabel ?rolelabel .
+?s crm:P143i_was_joined_by ?join .
+?join crm:P144_joined_with ?role .
+?join crm:P7_took_place_at ?place .
+?join crm:P4_has_time_span ?time .
+?time crm:P82a_begin_of_the_begin ?startdate .
+?time crm:P82b_end_of_the_end ?startdate .
+?s crm:P145i_left_by ?leaving .
+?leaving crm:P146_separated_from ?role . 
+?leaving crm:P4_has_time_span ?time1 .
+?time1 crm:P82a_begin_of_the_begin ?enddate .
+?time1 crm:P82b_end_of_the_end ?enddate .  
+?s crm:P1_is_identified_by ?appellation .
+?appellation rdfs:label ?alt .
+  
+  
+} 
+WHERE
+{
+  
+  ?s a foaf:Person .
+  ?s org:hasMembership ?this .
+  
+ BIND(IRI(CONCAT(STR( ?s ), "/join")) AS ?join)
+ BIND(IRI(CONCAT(STR( ?s ), "/leave")) AS ?leaving)
+ BIND(IRI(CONCAT(STR( ?s ), "/join/duration")) AS ?time)
+ BIND(IRI(CONCAT(STR( ?s ), "/leave/duration")) AS ?time1)
+ BIND(IRI(CONCAT(STR( ?s ), "/appellation")) AS ?appellation)	
+ 
+  OPTIONAL
+  
+  { ?s skos:exactMatch ?o . }
+  { ?s skos:prefLabel ?p .  }
+  { ?s skos:altLabel ?alt .  }
+  { ?s skos:definition ?d . }
+  { ?this nmo:hasStartDate ?startdate . }
+  { ?this org:role ?role . }
+  { ?role skos:prefLabel ?rolelabel . }
+  { ?this nmo:hasEndDate ?enddate . }
+  { ?this org:organization ?place . }
+  
+  }
+
